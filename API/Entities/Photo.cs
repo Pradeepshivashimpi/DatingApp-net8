@@ -11,5 +11,6 @@ public class Photo
     public string? PublicId { get; set; }
 
     // Navigation property
+    public int AppUserId {get; set;}
     public AppUser AppUser {get; set;} = null!;
 }
