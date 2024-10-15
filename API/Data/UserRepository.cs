@@ -30,6 +30,11 @@ public class UserRepository(DataContext context, IMapper mapper) : IUserReposito
 
         query = query.Where(x => x.DateOfBirth >= minDob && x.DateOfBirth <= maxDob);
 
+        query = userParams.OrderBy switch {
+           "created" => query.OrderByDescending(x => x.Created),
+           _=> query.OrderByDescending(x => x.LastActive)
+        };
+
         if(userParams.Gender != null)
         {
             query = query.Where(x => x.Gender == userParams.Gender);
