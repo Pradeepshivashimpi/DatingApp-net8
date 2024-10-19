@@ -1,39 +1,47 @@
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, model, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { map, of, tap } from 'rxjs';
 import { Photo } from '../_models/photo';
 import { PaginatedResult } from '../_models/pagination';
 import { UserParams } from '../_models/userParams';
+import { AccountService } from './account.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MembersService {
   private http = inject(HttpClient);
+  private accountService = inject(AccountService);
   baseUrl = environment.apiUrl;
   // members = signal<Member[]>([]);
   paginatedResult = signal<PaginatedResult<Member[]> | null>(null);
   memberCatche = new Map();
+  user = this.accountService.CurrentUser();
+  userParams = signal<UserParams>(new UserParams(this.user));
 
-  getMembers(userParams: UserParams)
+  resetUserParams() {
+    this.userParams.set(new UserParams(this.user));
+  }
+
+  getMembers()
   {
-    const response = this.memberCatche.get(Object.values(userParams).join('_'));
+    const response = this.memberCatche.get(Object.values(this.userParams()).join('_'));
 
     if(response) return this.setPaginatedRespons(response);
 
-    let params = this.setPaginationHeaders(userParams.pageNumber, userParams.pageSize);
+    let params = this.setPaginationHeaders(this.userParams().pageNumber, this.userParams().pageSize);
 
-    params = params.append('minAge', userParams.minAge);
-    params = params.append('maxAge', userParams.maxAge);
-    params = params.append('gender', userParams.gender);
-    params = params.append('orderBy', userParams.orderBy);
+    params = params.append('minAge', this.userParams().minAge);
+    params = params.append('maxAge', this.userParams().maxAge);
+    params = params.append('gender', this.userParams().gender);
+    params = params.append('orderBy', this.userParams().orderBy);
 
     return this.http.get<Member[]>(this.baseUrl + 'users', {observe: 'response', params}).subscribe({
       next : response => {
         this.setPaginatedRespons(response);
-        this.memberCatche.set(Object.values(userParams).join('_'), response);
+        this.memberCatche.set(Object.values(this.userParams()).join('_'), response);
       }
     })
   }
