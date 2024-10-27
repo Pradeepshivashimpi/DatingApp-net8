@@ -31,7 +31,8 @@ export class ListsComponent implements OnInit {
 
   loadLikes() {
     this.likesService.getLikes(this.predicate).subscribe({
-      next: members => this.members = members
+      next: members => this.members = Array.isArray(members.result) ?  members.result : [members.result],
+      error: err => console.error('Error ', err )
     })
   }
 
