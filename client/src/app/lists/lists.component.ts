@@ -32,6 +32,8 @@ export class ListsComponent implements OnInit, OnDestroy {
 
   loadLikes() {
     this.likesService.getLikes(this.predicate, this.pageNumber, this.pageSize);
+    console.log('loaddedddd');
+    
   }
 
 
