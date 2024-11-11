@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Linq;
 using API.DTOs;
 using API.Entities;
 using API.Helpers;
@@ -23,9 +24,16 @@ public class MessageRepository(DataContext context) : IMessageRepository
         return await context.Messages.FindAsync(id);
     }
 
-    public Task<PagedList<MessageDto>> GetMessagesForUser()
+    public Task<PagedList<MessageDto>> GetMessagesForUser(MessageParams messageParams)
     {
-        throw new NotImplementedException();
+        var query = context.Messages
+            .OrderByDescending(x => x.MessageSent)
+            .AsQueryable();
+
+        query = messageParams.Container switch
+        {
+            
+        }
     }
 
     public Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsernam)
@@ -37,4 +45,5 @@ public class MessageRepository(DataContext context) : IMessageRepository
     {
         return await context.SaveChangesAsync() > 0;
     }
+    
 }
