@@ -4,10 +4,12 @@ using API.DTOs;
 using API.Entities;
 using API.Helpers;
 using API.Interfaces;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace API.Data;
 
-public class MessageRepository(DataContext context) : IMessageRepository
+public class MessageRepository(DataContext context, IMapper mapper) : IMessageRepository
 {
     public void AddMessage(Message message)
     {
@@ -24,7 +26,7 @@ public class MessageRepository(DataContext context) : IMessageRepository
         return await context.Messages.FindAsync(id);
     }
 
-    public Task<PagedList<MessageDto>> GetMessagesForUser(MessageParams messageParams)
+    public async Task<PagedList<MessageDto>> GetMessagesForUser(MessageParams messageParams)
     {
         var query = context.Messages
             .OrderByDescending(x => x.MessageSent)
@@ -32,8 +34,15 @@ public class MessageRepository(DataContext context) : IMessageRepository
 
         query = messageParams.Container switch
         {
-            
-        }
+            "Inbox" => query.Where(x => x.Receipient.UserName == messageParams.Username),
+            "Outbox" => query.Where(x => x.Sender.UserName == messageParams.Username),
+            _ => query.Where(x => x.Receipient.UserName == messageParams.Username && x.DateRead == null)
+        };
+
+        var messages = query.ProjectTo<MessageDto>(mapper.ConfigurationProvider);
+
+        return await PagedList<MessageDto>.CreateAsync(messages, messageParams.PageNumber,
+                messageParams.PageSize);
     }
 
     public Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsernam)
@@ -45,5 +54,4 @@ public class MessageRepository(DataContext context) : IMessageRepository
     {
         return await context.SaveChangesAsync() > 0;
     }
-    
 }
