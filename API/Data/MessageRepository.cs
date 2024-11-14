@@ -6,6 +6,7 @@ using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
@@ -45,9 +46,29 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
                 messageParams.PageSize);
     }
 
-    public Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsernam)
+    public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsername)
     {
-        throw new NotImplementedException();
+        var messages = await context.Messages
+                       .Include(x => x.Sender).ThenInclude(x => x.Photos)
+                       .Include(x => x.Receipient).ThenInclude(x => x.Photos)
+                       .Where(x => 
+                          x.ReceipientUsername == currentUsername && x.SenderUsername == receipientUsername ||
+                          x.SenderUsername == currentUsername && x.ReceipientUsername == receipientUsername
+                        )
+                        .OrderBy(x => x.MessageSent)
+                        .ToListAsync();
+
+        
+        var unreadMessages = messages.Where(x => x.DateRead == null && 
+            x.ReceipientUsername == currentUsername).ToList();
+
+        if(unreadMessages.Count != 0)
+        {
+            unreadMessages.ForEach(x => x.DateRead = DateTime.UtcNow);
+            await context.SaveChangesAsync();
+        }
+
+        return mapper.Map<IEnumerable<MessageDto>>(messages);
     }
 
     public async Task<bool> SaveAllAsync()
