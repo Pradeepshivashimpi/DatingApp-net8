@@ -1,10 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MessageService } from '../_Services/message.service';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { FormsModule } from '@angular/forms';
+import { TimeagoModule } from 'ngx-timeago';
 
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [],
+  imports: [ButtonsModule, FormsModule, TimeagoModule],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
