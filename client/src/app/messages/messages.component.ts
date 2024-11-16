@@ -3,11 +3,14 @@ import { MessageService } from '../_Services/message.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { FormsModule } from '@angular/forms';
 import { TimeagoModule } from 'ngx-timeago';
+import { Message } from '../_models/message';
+import { RouterLink } from '@angular/router';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [ButtonsModule, FormsModule, TimeagoModule],
+  imports: [ButtonsModule, FormsModule, TimeagoModule, RouterLink, PaginationModule],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
@@ -23,6 +26,11 @@ export class MessagesComponent implements OnInit {
 
    loadMessages() {
     this.messageService.getMessages(this.pageNumber, this.pageSize, this.container);
+   }
+
+   getRoute(message: Message) {
+    if(this.container === 'Outbox') return `/members/${message.receipientUsername}`;
+    else return `/members/${message.senderUsername}`;
    }
 
    pageChanged(event: any) {

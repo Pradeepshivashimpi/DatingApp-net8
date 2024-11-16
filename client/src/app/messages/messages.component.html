@@ -25,24 +25,45 @@
             <th style="width: 20%;"></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="allign-middle">
         @for (message of messageService.paginatedResult()?.items; track message.id) {
-        <td>{{message.content}}</td>
-        <td>
-            <div>
-                <img 
-                   [src]="container === 'Outbox' 
+        <tr routerLink="{{getRoute(message)}}">
+            <td>{{message.content}}</td>
+            <td>
+                <div>
+                    <img [src]="container === 'Outbox' 
                     ? (message.receipientPhotoUrl || './assets/user.png') : 
                     (message.senderPhotoUrl || './assets/user.png')" 
                     alt="image of user"
-                >
-                <strong>{{container === 'Outbox' 
-                  ? message.receipientUsername : message.senderUsername}}
-                </strong>
-            </div>
-        </td>
-        <td></td>
+                    class="rounded-circle me-2" 
+                    >
+                    <strong>{{container === 'Outbox'
+                        ? message.receipientUsername : message.senderUsername}}
+                    </strong>
+                </div>
+            </td>
+            <td>{{message.messageSent | timeago}}</td>
+            <td><button class="btn btn-danger">Delete</button></td>
+        </tr>
         }
     </tbody>
 </table>
+}
+
+
+@if (messageService.paginatedResult()?.pagination) {
+    <div class="d-flex justify-content-center">
+        <pagination 
+            [boundaryLinks]="true" 
+            [totalItems]="messageService.paginatedResult()?.pagination!.totalItems" 
+            [itemsPerPage]="messageService.paginatedResult()?.pagination!.itemsPerPage" 
+            (pageChanged)="pageChanged($event)"
+            [(ngModel)]="messageService.paginatedResult()?.pagination!.currentPage"
+            [maxSize]="10"
+            previousText="&lsaquo;" 
+            nextText="&rsaquo;" 
+            firstText="&laquo;"
+            lastText="&raquo;">
+        </pagination>
+    </div>
 }
