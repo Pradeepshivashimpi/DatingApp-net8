@@ -1,4 +1,4 @@
-@if(member) {
+
 <div class="row">
     <div class="col-4">
         <div class="card">
@@ -33,7 +33,7 @@
 
     <div class="col-8">
         <tabset class="member-tabset" #memberTabs>
-            <tab heading="{{member.knownAs}}" (selectTab)="onTabActivated($event)">
+            <tab heading="About {{member.knownAs}}" (selectTab)="onTabActivated($event)">
                 <h4>Description</h4>
                 <p>{{member.introduction}}</p>
                 <h4>Looking for</h4>
@@ -62,4 +62,3 @@
     </div>
 
 </div>
-}
