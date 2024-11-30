@@ -17,7 +17,9 @@ namespace API.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<AppUser>()
+            base.OnModelCreating(builder);
+
+             builder.Entity<AppUser>()
              .HasMany(ur => ur.UserRoles)
              .WithOne(u => u.User)
              .HasForeignKey(ur => ur.UserId)
@@ -28,9 +30,7 @@ namespace API.Data
              .WithOne(u => u.Role)
              .HasForeignKey(ur => ur.RoleId)
              .IsRequired();
-
-
-            base.OnModelCreating(builder);
+             
 
             builder.Entity<UserLike>()
              .HasKey(k => new {k.SourceUserId, k.TargetUserId});
