@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class foreignkeyforphotos : Migration
+    public partial class ForcedMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
