@@ -14,6 +14,7 @@ export class RolesModalComponent {
   title = '';
   availableRoles: string[] = [];
   selectedRoles: string[] = [];
+  rolesUpdated = false;
 
   updateChecked(checkedValue:string) {
     if(this.selectedRoles.includes(checkedValue)) {
@@ -21,5 +22,10 @@ export class RolesModalComponent {
     } else {
       this.selectedRoles.push(checkedValue);
     }
+  }
+
+  onSelectRoles() {
+    this.rolesUpdated = true;
+    this.bsModalRef.hide();
   }
 }
