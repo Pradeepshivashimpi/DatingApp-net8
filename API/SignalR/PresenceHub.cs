@@ -2,7 +2,7 @@ using API.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace API.Services;
+namespace API.SignalR;
 
 [Authorize]
 public class PresenceHub : Hub
