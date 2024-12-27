@@ -32,6 +32,14 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
         return await context.Connections.FindAsync(ConnectionId);
     }
 
+    public async Task<Group?> GetGroupForConnection(string ConnectionId)
+    {
+        return await context.Groups
+           .Include(x => x.Connections)
+           .Where(x => x.Connections.Any(c => c.ConnectionId == ConnectionId))
+           .FirstOrDefaultAsync();
+    }
+
     public async Task<Message?> GetMessage(int id)
     {
         return await context.Messages.FindAsync(id);
@@ -69,8 +77,6 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
     public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsername)
     {
         var messages = await context.Messages
-                       .Include(x => x.Sender).ThenInclude(x => x.Photos)
-                       .Include(x => x.Receipient).ThenInclude(x => x.Photos)
                        .Where(x => 
                           x.ReceipientUsername == currentUsername && x.ReceipientDeleted == false 
                               && x.SenderUsername == receipientUsername ||
@@ -78,6 +84,7 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
                               && x.ReceipientUsername == receipientUsername
                         )
                         .OrderBy(x => x.MessageSent)
+                        .ProjectTo<MessageDto>(mapper.ConfigurationProvider)
                         .ToListAsync();
 
         
@@ -90,7 +97,7 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
             await context.SaveChangesAsync();
         }
 
-        return mapper.Map<IEnumerable<MessageDto>>(messages);
+        return messages;
     }
 
     public void RemoveConnection(Connection connection)
