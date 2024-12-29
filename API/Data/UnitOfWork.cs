@@ -1,4 +1,4 @@
-using System;
+
 using API.Interfaces;
 
 namespace API.Data;
@@ -6,11 +6,11 @@ namespace API.Data;
 public class UnitOfWork(DataContext context, IUserRepository userRepository, 
    IMessageRepository messageRepository, ILikesRepository likesRepository) : IUnitOfWork
 {
-    public IUserRepository userRepository => userRepository;
+    public IUserRepository UserRepository => userRepository;
 
-    public IMessageRepository messageRepository => messageRepository;
+    public IMessageRepository MessageRepository => messageRepository;
 
-    public ILikesRepository likesRepository => likesRepository;
+    public ILikesRepository LikesRepository => likesRepository;
 
     public async Task<bool> Complete()
     {
