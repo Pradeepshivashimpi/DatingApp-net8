@@ -60,11 +60,11 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
 
         query = messageParams.Container switch
         {
-            "Inbox" => query.Where(x => x.Receipient.UserName == messageParams.Username && 
+            "Inbox" => query.Where(x => x.Receipient.UserName == messageParams.Username &&
                   x.ReceipientDeleted == false),
-            "Outbox" => query.Where(x => x.Sender.UserName == messageParams.Username && 
+            "Outbox" => query.Where(x => x.Sender.UserName == messageParams.Username &&
                   x.SenderDeleted == false),
-            _ => query.Where(x => x.Receipient.UserName == messageParams.Username && x.DateRead == null && 
+            _ => query.Where(x => x.Receipient.UserName == messageParams.Username && x.DateRead == null &&
                   x.ReceipientDeleted == false)
         };
 
@@ -76,27 +76,26 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
 
     public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string receipientUsername)
     {
-        var messages = await context.Messages
-                       .Where(x => 
-                          x.ReceipientUsername == currentUsername && x.ReceipientDeleted == false 
+        var query = context.Messages
+                       .Where(x =>
+                          x.ReceipientUsername == currentUsername && x.ReceipientDeleted == false
                               && x.SenderUsername == receipientUsername ||
-                          x.SenderUsername == currentUsername && x.SenderDeleted == false 
+                          x.SenderUsername == currentUsername && x.SenderDeleted == false
                               && x.ReceipientUsername == receipientUsername
                         )
                         .OrderBy(x => x.MessageSent)
-                        .ProjectTo<MessageDto>(mapper.ConfigurationProvider)
-                        .ToListAsync();
+                        .AsQueryable();
 
-        
-        var unreadMessages = messages.Where(x => x.DateRead == null && 
+
+        var unreadMessages = query.Where(x => x.DateRead == null &&
             x.ReceipientUsername == currentUsername).ToList();
 
-        if(unreadMessages.Count != 0)
+        if (unreadMessages.Count != 0)
         {
             unreadMessages.ForEach(x => x.DateRead = DateTime.UtcNow);
         }
 
-        return messages;
+        return await query.ProjectTo<MessageDto>(mapper.ConfigurationProvider).ToListAsync();
     }
 
     public void RemoveConnection(Connection connection)
